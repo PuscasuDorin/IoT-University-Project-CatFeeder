@@ -1,21 +1,15 @@
 #include <HX711_ADC.h> // scale
-#include <Stepper.h> // motor
 
 const int HX711_dout = 9;
 const int HX711_sck = 8;
-const int stepper_CH1 = 10;
-const int stepper_CH2 = 11;
-const int stepper_CH3 = 12;
-const int stepper_CH4 = 13;
-const int stepsPerRevolution = 2038;
+int motorpin1 = 10;
+int motorpin2 = 11;
 
 HX711_ADC LoadCell(HX711_dout, HX711_sck);
-Stepper myStepper = Stepper(stepsPerRevolution, stepper_CH1, stepper_CH3, stepper_CH2, stepper_CH4);
 
 int m = 59, h = 0;
 int startingH;
 int portion, quantity;
-int currentStep = 0;
 bool food = true;
 
 void FoodDispenser();
@@ -29,8 +23,9 @@ void setup() {
    LoadCell.start(2000, true);
    LoadCell.setCalFactor(calibrationValue);
    LoadCell.tareNoDelay();
-
-   myStepper.setSpeed(17);
+   
+   pinMode(motorpin1, OUTPUT);
+  pinMode(motorpin2, OUTPUT);
 }
 
 void loop() {
@@ -85,7 +80,8 @@ void loop() {
 
 void FoodDispenser() {
    while (food == true) { 
-       myStepper.step(1);
+    digitalWrite(motorpin1,   HIGH);
+    digitalWrite(motorpin2, LOW);
        LoadCell.update();
        Serial.println(LoadCell.getData());
        if (LoadCell.getData() >= quantity / portion) {
